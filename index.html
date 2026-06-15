@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Projects</title>
+<meta name="description" content="Projects by Arjun Kalbag — an interactive carousel of work." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* ---- brand wordmark fonts ---- */
+  @font-face {
+    font-family: "Clash Display";
+    src: url("fonts/ClashDisplay-Semibold.otf") format("opentype");
+    font-weight: 600; font-display: swap;
+  }
+  @font-face {
+    font-family: "Vantely";
+    src: url("fonts/Vantely.ttf") format("truetype");
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Hobsky";
+    src: url("fonts/Hobsky.otf") format("opentype");
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Resolide Serif";
+    src: url("fonts/ResolideSerif_PERSONAL_USE_ONLY.otf") format("opentype");
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "EB Garamond Brand";
+    src: url("fonts/EBGaramond-SemiBold.ttf") format("truetype");
+    font-weight: 600; font-display: swap;
+  }
+
+  :root { --bg: #F3F0E9; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg);
+    /* faint warm grain so the off-white isn't flat */
+    background-image: radial-gradient(circle at 50% 42%, #fbfaf6 0%, #F3F0E9 60%, #ece8df 100%);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+    cursor: none;
+  }
+  /* hide the native cursor everywhere — the blob stands in for it */
+  * { cursor: none !important; }
+  #root { height: 100%; }
+
+  .stage {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    perspective: 1500px;
+    perspective-origin: 50% 50%;
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  /* colored glow that sits behind the active logo */
+  .glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 40vmin; height: 40vmin;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    filter: blur(60px);
+    opacity: 0;
+    transition: background 0.7s ease, opacity 0.7s ease;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glow.pulse { animation: glowpulse 2.3s ease-in-out; }
+  @keyframes glowpulse {
+    0%   { opacity: 0.22; }
+    40%  { opacity: 0.4; }
+    100% { opacity: 0.22; }
+  }
+
+  .slide {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: min(34vmin, 340px);
+    height: min(34vmin, 340px);
+    transform-style: preserve-3d;
+    will-change: transform, opacity;
+    transition: transform 1.05s cubic-bezier(.34,.02,.18,1), opacity 0.8s ease, filter 0.8s ease;
+  }
+  .parallax {
+    width: 100%; height: 100%;
+    transition: transform 0.5s cubic-bezier(.2,.7,.2,1);
+    transform-style: preserve-3d;
+  }
+  .floater {
+    width: 100%; height: 100%;
+    display: grid;
+    place-items: center;
+  }
+  .slide.active .floater { animation: float 7s ease-in-out infinite; }
+  @keyframes float {
+    0%, 100% { transform: translateY(-8px) rotate(-1.5deg); }
+    50%      { transform: translateY(8px) rotate(1.5deg); }
+  }
+
+  /* organic squash-and-stretch on click */
+  .kicker { width: 100%; height: 100%; display: grid; place-items: center; }
+  .slide.active { cursor: pointer; }
+  .kicker.kick { animation: squish 2.3s cubic-bezier(.33,.06,.2,1); }
+  @keyframes squish {
+    0%   { transform: scale(1, 1); }
+    22%  { transform: scale(1.075, 0.93); }
+    46%  { transform: scale(0.945, 1.06); }
+    66%  { transform: scale(1.025, 0.982); }
+    84%  { transform: scale(0.99, 1.008); }
+    100% { transform: scale(1, 1); }
+  }
+
+  .logo-svg {
+    width: 100%; height: 100%;
+    display: block;
+    overflow: visible;
+    filter: drop-shadow(0 26px 38px rgba(40, 30, 15, 0.18));
+  }
+
+  /* ground shadow ellipse under the active logo */
+  .ground {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 22vmin; height: 4.5vmin;
+    margin-top: 21vmin;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(ellipse at center, rgba(40,30,15,0.16), rgba(40,30,15,0) 70%);
+    filter: blur(4px);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* minimal, wordless scroll cue */
+  .cue {
+    position: absolute;
+    left: 50%; bottom: 5.5vh;
+    transform: translateX(-50%);
+    display: flex; gap: 14px; align-items: center;
+    opacity: 0.5;
+    transition: opacity 0.6s ease;
+    z-index: 5;
+  }
+  .cue.hide { opacity: 0; }
+  .cue .dotrow { display: flex; gap: 9px; }
+  .cue .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #2a2118; opacity: 0.18;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .cue .dot.on { opacity: 0.7; transform: scale(1.35); }
+  .chev {
+    width: 26px; height: 26px;
+    color: #2a2118; opacity: 0.55;
+    animation: nudge 1.8s ease-in-out infinite;
+  }
+  @keyframes nudge {
+    0%, 100% { transform: translateX(0); }
+    50%      { transform: translateX(6px); }
+  }
+
+  /* ---- brand wordmark revealed under the active logo on hover ---- */
+  .wordmark {
+    position: absolute;
+    top: 50%; left: 50%;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    white-space: pre;
+    line-height: 1;
+    pointer-events: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    text-shadow: 0 2px 14px rgba(40, 30, 15, 0.10);
+    transform: translate(-50%, calc(-50% + 21vmin));
+  }
+  .wordmark .ch {
+    display: inline-block;
+    opacity: 0;
+    will-change: opacity, transform, filter;
+    /* opacity / transform / filter are driven every frame by rAF (no CSS transition) */
+  }
+
+  /* stable hover/click target over the logo — survives project switches so a
+     held hover keeps registering even when a new logo flies into place */
+  .hotzone {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: min(40vmin, 400px);
+    height: min(40vmin, 400px);
+    transform: translate(-50%, -50%);
+    z-index: 16;
+    border-radius: 50%;
+  }
+
+  /* organic blob cursor */
+  .cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 80px; height: 80px;
+    z-index: 9999;
+    pointer-events: none;
+    will-change: transform;
+  }
+  .cursor svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .cursor path {
+    fill: #14110D;
+    filter: drop-shadow(0 0 1px rgba(250, 248, 242, 0.45));
+  }
+
+  /* corner signature — spans the full top so "projects" can rest at the left
+     and slide right to dock with the signature on hover. The bar itself is
+     non-interactive; only the hotspot over the blob (top-right) reacts. */
+  .corner {
+    position: fixed;
+    top: 14px; left: 0; right: 0;
+    height: 130px;
+    z-index: 40;
+    pointer-events: none;
+  }
+  /* hover/click target over the signature blob (top-right) */
+  .sig-hit {
+    position: fixed;
+    top: 0; right: 0;
+    height: 140px;
+    width: min(760px, 72vw);
+    z-index: 41;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="app.js"></script>
+</body>
+</html>
