@@ -1,6 +1,6 @@
 # Projects
 
-My artistic presetation of my personal portfolio.
+My artistic presentation of my personal portfolio.
 
 Implemented as a dependency-free standalone static page.
 
