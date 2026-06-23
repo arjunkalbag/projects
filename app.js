@@ -262,6 +262,30 @@
     return svg;
   }
 
+  /* ---- 6. Genre-Space — organic blob music note (violet) ---- */
+  function BlobGenreSpace() {
+    var k = kick("genrespace");
+    var STEM_X = 216, STEM_TOP = 98, HEAD_CX = 158, HEAD_CY = 258, HEAD_R = 64;
+    var stem = S("rect", { x: (STEM_X - 9), y: STEM_TOP, width: "18", height: (HEAD_CY - STEM_TOP), rx: "9", fill: "url(#gs-g)" });
+    var flag = S("path", { d: "M 225 102 C 266 120 286 156 264 202 C 262 166 248 142 225 150 Z", fill: "url(#gs-g)" });
+    var head = S("path", { d: closedPath(blobPts(HEAD_CX, HEAD_CY, HEAD_R, 130, 0, { amp: 5, f1: 2, f2: 4, speed: 0.7, squashY: 0.82 })), fill: "url(#gs-g)" });
+    var grp = S("g", null, [stem, flag, head]);
+    var svg = S("svg", { viewBox: "0 0 400 400", "class": "logo-svg" }, [
+      S("defs", null, [
+        grad("radialGradient", "gs-g", { cx: "42%", cy: "30%", r: "84%" }, [["0%", "#B49CFF"], ["52%", "#7C5CF0"], ["100%", "#4A2DB0"]])
+      ]),
+      grp
+    ]);
+    raf(function (t) {
+      k.imp *= 0.975;
+      var e = k.imp;
+      var bob = Math.sin(t * 0.9) * 5 - e * 18;
+      grp.setAttribute("transform", "translate(0 " + bob.toFixed(1) + ") rotate(" + (Math.sin(t * 0.5) * 2.4).toFixed(2) + " 200 210)");
+      head.setAttribute("d", closedPath(blobPts(HEAD_CX, HEAD_CY, HEAD_R * (1 + e * 0.08), 130, t, { amp: 5 * (1 + e * 2), f1: 2, f2: 4, speed: 0.7, squashY: 0.82 })));
+    });
+    return svg;
+  }
+
   /* ---- project data ---- */
   var PROJECTS = [
     { key: "playback", Comp: BlobPlayback, color: "#E8472A", url: "https://tryplayback.xyz",
@@ -273,7 +297,9 @@
     { key: "vantage", Comp: BlobVantage, color: "#D9A93E", url: "https://vantageprep.netlify.app",
       wm: { text: "Vantage Prep", font: "'EB Garamond Brand', serif", color: "#111827", size: "5.6vmin", ls: "0.005em", weight: 600 } },
     { key: "pitstop", Comp: BlobPitstop, color: "#F5C518", url: "https://usepitstop.netlify.app",
-      wm: { text: "PITSTOP", font: "'Hobsky', sans-serif", color: "#000000", size: "9vmin", ls: "0.04em", weight: 400 } }
+      wm: { text: "PITSTOP", font: "'Hobsky', sans-serif", color: "#000000", size: "9vmin", ls: "0.04em", weight: 400 } },
+    { key: "genrespace", Comp: BlobGenreSpace, color: "#7C5CF0", url: "https://genre-space.netlify.app/",
+      wm: { text: "genre-space", font: "'Inktera Demo', sans-serif", color: "#7C5CF0", size: "7vmin", ls: "0em", weight: 400 } }
   ];
 
   /* ---- shared interaction state ---- */
