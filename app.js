@@ -286,6 +286,39 @@
     return svg;
   }
 
+  /* ---- 7. AK Labs — alive black organic blob with "AK" knocked out ---- */
+  function BlobAKLabs() {
+    var k = kick("aklabs");
+    var N = 132;
+    function P(t, e) {
+      return closedPath(blobPts(200, 200, 150 + e * 10 + Math.sin(t * 0.8) * 3, N, t,
+        { amp: 12 * (1 + e * 1.8), f1: 2, f2: 5, speed: 0.85 }));
+    }
+    var d0 = P(0, 0);
+    var blob = S("path", { d: d0, fill: "url(#ak-g)", mask: "url(#ak-mask)" });
+    var maskBlob = S("path", { d: d0, fill: "#fff" });
+    var maskText = S("text", {
+      x: "200", y: "204", "text-anchor": "middle", "dominant-baseline": "central",
+      "font-family": "'AK Wordmark','Bricolage Grotesque',sans-serif",
+      "font-size": "168", "letter-spacing": "-3", fill: "#000"
+    }, "AK");
+    var svg = S("svg", { viewBox: "0 0 400 400", "class": "logo-svg" }, [
+      S("defs", null, [
+        grad("radialGradient", "ak-g", { cx: "40%", cy: "30%", r: "84%" }, [["0%", "#3a3a3a"], ["58%", "#141414"], ["100%", "#050505"]]),
+        S("mask", { id: "ak-mask" }, [maskBlob, maskText])
+      ]),
+      blob
+    ]);
+    raf(function (t) {
+      k.imp *= 0.975;
+      var e = k.imp;
+      var d = P(t, e);
+      blob.setAttribute("d", d);
+      maskBlob.setAttribute("d", d);
+    });
+    return svg;
+  }
+
   /* ---- project data ---- */
   var PROJECTS = [
     { key: "playback", Comp: BlobPlayback, color: "#E8472A", url: "https://tryplayback.xyz",
@@ -299,7 +332,9 @@
     { key: "pitstop", Comp: BlobPitstop, color: "#F5C518", url: "https://usepitstop.netlify.app",
       wm: { text: "PITSTOP", font: "'Hobsky', sans-serif", color: "#000000", size: "9vmin", ls: "0.04em", weight: 400 } },
     { key: "genrespace", Comp: BlobGenreSpace, color: "#7C5CF0", url: "https://genre-space.netlify.app/",
-      wm: { text: "genre-space", font: "'Inktera Demo', sans-serif", color: "#7C5CF0", size: "7vmin", ls: "0em", weight: 400 } }
+      wm: { text: "genre-space", font: "'Inktera Demo', sans-serif", color: "#7C5CF0", size: "7vmin", ls: "0em", weight: 400 } },
+    { key: "aklabs", Comp: BlobAKLabs, color: "#1A1A1A", url: "https://aklaboratories.github.io",
+      wm: { text: "AK LABS", font: "'AK Wordmark', sans-serif", color: "#111827", size: "7.2vmin", ls: "0.02em", weight: 400 } }
   ];
 
   /* ---- shared interaction state ---- */
