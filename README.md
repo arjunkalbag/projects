@@ -1,12 +1,8 @@
 # Projects
 
-An interactive portfolio carousel of blobby, color-matched, animated brand logos
-on a warm off-white page. Scroll / arrow-key / swipe snaps one project at a time
-with a 3D coverflow rotation. The active logo floats, reacts to cursor parallax,
-and does a slow squash-and-jiggle on click that opens its site.
+An artistic presentation of my personal portfolio. 
 
-Implemented as a dependency-free standalone static page (no build step, no
-framework) — recreated from a Claude Design handoff.
+[Live Version](https://arjunkalbag.xyz/projects/)
 
 ## Tech stack
 
