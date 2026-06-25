@@ -319,8 +319,62 @@
     return svg;
   }
 
+  /* ---- Pairyx — the P monogram rebuilt as two living gold strokes: a rounded
+     loop + an inner diagonal accent, both breathing/wobbling like the others ---- */
+  function BlobPairyx() {
+    var k = kick("pairyx");
+    // centerline anchors (viewBox 0..400) — the big rounded P-loop that encloses
+    // the counter and drops to a short foot bottom-left
+    // the P itself, drawn as one open stroke: a left stem (foot → up the spine) that
+    // arcs into a bowl across the top and right, then closes back onto the stem mid-height
+    var loop = [[104, 300], [90, 244], [84, 184], [84, 120], [92, 70], [130, 52], [246, 52], [306, 68], [328, 116], [324, 170], [300, 214], [240, 234], [150, 230], [100, 212]];
+    // inner accent — the logo's signature flourish: a short top bar bending into a
+    // diagonal that runs down toward the foot
+    var accent = [[146, 146], [226, 146], [258, 146], [186, 212], [118, 274]];
+    function wob(pts, t, e) {
+      var out = [];
+      for (var i = 0; i < pts.length; i++) {
+        var dx = Math.sin(t * 0.85 + i * 0.7) * (2 + e * 9);
+        var dy = Math.cos(t * 0.72 + i * 0.95) * (2 + e * 9);
+        out.push([pts[i][0] + dx, pts[i][1] + dy]);
+      }
+      return out;
+    }
+    function openPath(pts) {
+      var n = pts.length;
+      var d = "M " + pts[0][0].toFixed(1) + " " + pts[0][1].toFixed(1) + " ";
+      for (var i = 0; i < n - 1; i++) {
+        var p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(n - 1, i + 2)];
+        var c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+        var c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+        d += "C " + c1x.toFixed(1) + " " + c1y.toFixed(1) + " " + c2x.toFixed(1) + " " + c2y.toFixed(1) +
+          " " + p2[0].toFixed(1) + " " + p2[1].toFixed(1) + " ";
+      }
+      return d;
+    }
+    var SW = "34";
+    var s1 = S("path", { d: openPath(loop), fill: "none", stroke: "url(#px-g)", "stroke-width": SW, "stroke-linecap": "round", "stroke-linejoin": "round" });
+    var s2 = S("path", { d: openPath(accent), fill: "none", stroke: "url(#px-g)", "stroke-width": SW, "stroke-linecap": "round", "stroke-linejoin": "round" });
+    var svg = S("svg", { viewBox: "0 0 400 400", "class": "logo-svg" }, [
+      S("defs", null, [
+        grad("linearGradient", "px-g", { x1: "8%", y1: "0%", x2: "92%", y2: "100%" },
+          [["0%", "#F6D98A"], ["38%", "#E0B45C"], ["70%", "#C9A24A"], ["100%", "#A0742A"]])
+      ]),
+      s1, s2
+    ]);
+    raf(function (t) {
+      k.imp *= 0.975;
+      var e = k.imp;
+      s1.setAttribute("d", openPath(wob(loop, t, e)));
+      s2.setAttribute("d", openPath(wob(accent, t * 1.04, e)));
+    });
+    return svg;
+  }
+
   /* ---- project data ---- */
   var PROJECTS = [
+    { key: "pairyx", Comp: BlobPairyx, color: "#C9A24A", url: "https://pairyx.co/",
+      wm: { text: "PAIRYX", flipA: true, font: "'Quicksand', sans-serif", color: "#C49A3D", size: "6.6vmin", ls: "0.16em", weight: 600 } },
     { key: "playback", Comp: BlobPlayback, color: "#E8472A", url: "https://tryplayback.xyz",
       wm: { text: "Playback", font: "'Clash Display', sans-serif", color: "#000000", size: "5.4vmin", ls: "-0.01em", weight: 600 } },
     { key: "report", Comp: BlobReport, color: "#F2730C", url: "https://createwellness.github.io",
@@ -418,9 +472,28 @@
       box.style.paintOrder = "stroke";
       while (box.firstChild) box.removeChild(box.firstChild);
       letters = [];
+      // image wordmark (a custom logotype we don't have as a webfont) — revealed as one piece
+      if (wm.img) {
+        box.style.fontFamily = ""; box.style.color = ""; box.style.webkitTextStroke = "";
+        var img = H("img", { "class": "ch", src: wm.img, alt: wm.text || "" });
+        img.style.height = wm.size || "5.6vmin";
+        img.style.width = "auto";
+        box.appendChild(img);
+        letters.push(img);
+        return;
+      }
       var chars = wm.text.split("");
       for (var i = 0; i < chars.length; i++) {
-        var span = H("span", { "class": "ch" }, [chars[i] === " " ? " " : chars[i]]);
+        var ch = chars[i];
+        var span = H("span", { "class": "ch" });
+        // render "A" as an upside-down uppercase V (a chevron peak), like the brand wordmark
+        if (wm.flipA && (ch === "A" || ch === "a")) {
+          // letter-spacing 0 on the inner span: otherwise the V's trailing letter-spacing
+          // rides along the 180° rotation and lands on the LEFT, opening a gap before the ∧
+          var v = H("span", null, ["V"]); v.style.display = "inline-block"; v.style.letterSpacing = "0"; v.style.transform = "rotate(180deg)"; span.appendChild(v);
+        } else {
+          span.appendChild(document.createTextNode(ch === " " ? "\u00a0" : ch));
+        }
         box.appendChild(span);
         letters.push(span);
       }
